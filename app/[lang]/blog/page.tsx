@@ -5,6 +5,7 @@ import PostListItem from '@/components/PostListItem'
 import TagListItem from '@/components/TagListItem'
 import ErrorNoKeys from '@/components/errorNoKeys'
 import config from '@/react-bricks/config'
+import { i18n } from '@/i18n-config'
 
 const getData = async (
   locale: string
@@ -57,6 +58,21 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: 'Post List',
     description: 'React Bricks blog starter',
+    alternates: {
+      canonical: `${i18n.siteUrl}/blog`,
+      languages: i18n.locales.reduce((acc, locale) => {
+        if (locale === i18n.defaultLocale) {
+          return {
+            ...acc,
+            [locale]: `${i18n.siteUrl}/blog`,
+          }
+        }
+        return {
+          ...acc,
+          [locale]: `${i18n.siteUrl}/${locale}/blog`,
+        }
+      }, {}),
+    },
   }
 }
 

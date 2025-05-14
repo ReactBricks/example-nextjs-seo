@@ -13,6 +13,7 @@ import { ClickToEdit } from 'react-bricks/rsc/client'
 
 import ErrorNoKeys from '@/components/errorNoKeys'
 import ErrorNoPage from '@/components/errorNoPage'
+import { i18n } from '@/i18n-config'
 import config from '@/react-bricks/config'
 
 const getData = async (
@@ -97,7 +98,30 @@ export async function generateMetadata(props: {
     return {}
   }
 
-  return getMetadata(page)
+  const metadata = getMetadata(page)
+
+  const slug = page.slug === '/' ? '' : page.slug
+
+  return {
+    ...metadata,
+    alternates: {
+      canonical: `${i18n.siteUrl}/${slug}`,
+      languages: page.translations.reduce((acc, translation) => {
+        const slug = translation.slug === '/' ? '' : translation.slug
+
+        if (translation.language === i18n.defaultLocale) {
+          return {
+            ...acc,
+            [translation.language]: `${i18n.siteUrl}/${slug}`,
+          }
+        }
+        return {
+          ...acc,
+          [translation.language]: `${i18n.siteUrl}/${translation.language}/${slug}`,
+        }
+      }, {}),
+    },
+  }
 }
 
 export default async function Page(props: {
@@ -113,6 +137,8 @@ export default async function Page(props: {
   // Removes unknown or not allowed bricks
   const bricks = getBricks()
   const pageOk = page ? cleanPage(page, config.pageTypes || [], bricks) : null
+
+  pageOk?.translations
 
   return (
     <>
